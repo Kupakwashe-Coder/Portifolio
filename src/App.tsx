@@ -1,7 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Mail, Github, Linkedin, ExternalLink, Code2, Layout, Zap, Users } from 'lucide-react';
-import { FiUsers, FiRefreshCw, FiZap as FiZapIcon, FiSun } from 'react-icons/fi';
+import { Menu, X, Mail, Github, Linkedin, ExternalLink, Code2, Layout, Zap, Users, RefreshCw, Sun } from 'lucide-react';
 import resumePdf from './Gwavava Decent.pdf';
+
+type FormspreeError = { message: string };
+type FormspreeResponse = {
+  errors?: FormspreeError[];
+  message?: string;
+};
+
+type Project = {
+  title: string;
+  description: string;
+  tech: string[];
+  image: string;
+  url?: string;
+};
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -40,14 +53,14 @@ function App() {
         body: formData,
         headers: { 'Accept': 'application/json' },
       });
-      const data = await resp.json().catch(() => null);
+      const data: FormspreeResponse | null = await resp.json().catch(() => null);
       if (resp.ok) {
         setContactStatus('success');
         setContactMessage('Thanks! Your message has been sent.');
         form.reset();
       } else {
         setContactStatus('error');
-        const detail = data?.errors?.map((e: any) => e.message).join(' ') || data?.message || `Request failed (${resp.status}).`;
+        const detail = data?.errors?.map((e) => e.message).join(' ') || data?.message || `Request failed (${resp.status}).`;
         setContactMessage(detail);
       }
     } catch {
@@ -122,7 +135,7 @@ function App() {
     },
   ];
 
-  const projects = [
+  const projects: Project[] = [
     {
       title: 'E-Learning Platform',
       description: 'A full-stack e-learning platform with user authentication, course catalog, interactive lessons, quizzes, and progress tracking.',
@@ -280,10 +293,10 @@ function App() {
                 </p>
                 <div className="grid grid-cols-2 gap-4 pt-6">
                   {[
-                    { label: 'Teamwork', icon: <FiUsers className="w-5 h-5 text-slate-700" /> },
-                    { label: 'Adaptability', icon: <FiRefreshCw className="w-5 h-5 text-slate-700" /> },
-                    { label: 'Coding Efficiency', icon: <FiZapIcon className="w-5 h-5 text-slate-700" /> },
-                    { label: 'Creativity', icon: <FiSun className="w-5 h-5 text-slate-700" /> },
+                    { label: 'Teamwork', icon: <Users className="w-5 h-5 text-slate-700" /> },
+                    { label: 'Adaptability', icon: <RefreshCw className="w-5 h-5 text-slate-700" /> },
+                    { label: 'Coding Efficiency', icon: <Zap className="w-5 h-5 text-slate-700" /> },
+                    { label: 'Creativity', icon: <Sun className="w-5 h-5 text-slate-700" /> },
                   ].map((strength) => (
                     <div key={strength.label} className="flex items-center space-x-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
                       <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white border border-slate-200">
@@ -389,9 +402,9 @@ function App() {
                         </span>
                       ))}
                     </div>
-                    {('url' in project && (project as any).url) ? (
+                    {project.url ? (
                       <a
-                        href={(project as any).url}
+                        href={project.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center text-amber-400 font-semibold hover:text-amber-500 transition-colors group focus-ring"
