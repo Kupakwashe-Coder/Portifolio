@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, Mail, Github, Linkedin, ExternalLink, Code2, Layout, Zap, Users, RefreshCw, Sun } from 'lucide-react';
 import resumePdf from './Gwavava Decent.pdf';
+import Chatbot from './components/Chatbot';
 
 type FormspreeError = { message: string };
 type FormspreeResponse = {
@@ -576,6 +577,8 @@ function App() {
           </div>
         </div>
       </footer>
+
+      <Chatbot />
     </div>
   );
 }
