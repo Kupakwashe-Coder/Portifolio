@@ -1,5 +1,3 @@
-import { createClient } from 'npm:@supabase/supabase-js@2.39.7';
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -86,9 +84,38 @@ IMPORTANT:
 - Be enthusiastic about Decent's skills and projects
 `;
 
-interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
+function generateResponse(message: string): string {
+  const lowerMessage = message.toLowerCase();
+  
+  if (lowerMessage.includes('skill') || lowerMessage.includes('technology') || lowerMessage.includes('tech stack') || lowerMessage.includes('what can')) {
+    return "Decent's technical skills include JavaScript, TypeScript, React, Tailwind CSS, HTML/CSS, Git, SQL, and Python. He's passionate about full-stack development, writing clean and maintainable code, and creating beautiful user interfaces. His expertise spans modern web technologies and best practices.";
+  }
+  
+  if (lowerMessage.includes('project')) {
+    return "Decent has worked on several impressive projects:\n\n1. E-Learning Platform - A full-stack platform with authentication, course catalog, quizzes, and progress tracking (React, Node.js, MongoDB, Stripe)\n\n2. AI Resume Parser - An AI-powered tool that extracts skills, experience, and education from PDF/DOCX files (React, Node.js, NLP)\n\n3. Smart Notes - A modern note-taking app with search and tagging capabilities (React, Tailwind CSS)\n\nEach project demonstrates his full-stack capabilities and attention to user experience. You can check them out in the Projects section!";
+  }
+  
+  if (lowerMessage.includes('education') || lowerMessage.includes('study') || lowerMessage.includes('learn') || lowerMessage.includes('training')) {
+    return "Decent is currently studying at Uncommon.Org, pursuing comprehensive training in software development with a focus on modern web technologies and industry best practices. He's also volunteering as a Scratch Instructor, teaching coding to school children and young adults in his community. He's dedicated to continuous learning and helping others learn to code!";
+  }
+  
+  if (lowerMessage.includes('contact') || lowerMessage.includes('hire') || lowerMessage.includes('email') || lowerMessage.includes('reach') || lowerMessage.includes('get in touch')) {
+    return "You can reach Decent at kupakwashegwavava@gmail.com. You can also connect with him on GitHub (github.com/decentKG) and LinkedIn (linkedin.com/in/decentgwavava). He's currently open to new opportunities, collaborations, and tech discussions. Feel free to reach out!";
+  }
+  
+  if (lowerMessage.includes('experience') || lowerMessage.includes('work') || lowerMessage.includes('background')) {
+    return "Decent is currently a Software Developer Student at Uncommon.Org, focusing on full-stack development and modern web technologies. He also volunteers as a Scratch Instructor, teaching coding to young people. His key strengths include clean code practices, UI/UX design, performance optimization, and excellent team collaboration. He's passionate about using technology to solve real-world problems!";
+  }
+  
+  if (lowerMessage.includes('who is') || lowerMessage.includes('tell me about') || lowerMessage.includes('introduce')) {
+    return "Hi! I'm an AI assistant representing Decent Gwavava. He's a passionate software developer with expertise in full-stack development, modern web technologies, and creating beautiful user experiences. Currently studying at Uncommon.Org and volunteering as a Scratch Instructor. His tagline says it best: 'Turning Code into Impact — Building the Future, One Line at a Time.' What would you like to know more about?";
+  }
+  
+  if (lowerMessage.includes('hello') || lowerMessage.includes('hi ') || lowerMessage.includes('hey')) {
+    return "Hi there! I'm Decent's AI assistant. I'm here to help you learn more about Decent Gwavava, his skills, projects, education, and how to reach him. Feel free to ask me anything about his portfolio or experience!";
+  }
+  
+  return "Great question! I'm here to help you learn about Decent Gwavava and his work. Feel free to ask me about his skills, projects, education, experience, or how to get in touch with him. You can also explore the different sections of this portfolio!";
 }
 
 Deno.serve(async (req: Request) => {
@@ -100,7 +127,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { message, sessionId, conversationHistory = [] } = await req.json();
+    const { message, sessionId } = await req.json();
 
     if (!message || !sessionId) {
       return new Response(
@@ -112,71 +139,10 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    await supabase.from('chat_conversations').insert({
-      session_id: sessionId,
-      message: message,
-      role: 'user',
-    });
-
-    const messages: ChatMessage[] = [
-      { role: 'assistant', content: PORTFOLIO_CONTEXT },
-      ...conversationHistory.slice(-6),
-      { role: 'user', content: message },
-    ];
-
-    const openAIKey = Deno.env.get('OPENAI_API_KEY');
-    
-    if (!openAIKey) {
-      const fallbackResponse = generateFallbackResponse(message);
-      
-      await supabase.from('chat_conversations').insert({
-        session_id: sessionId,
-        message: fallbackResponse,
-        role: 'assistant',
-      });
-
-      return new Response(
-        JSON.stringify({ response: fallbackResponse }),
-        {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
-    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: messages,
-        temperature: 0.7,
-        max_tokens: 500,
-      }),
-    });
-
-    if (!openAIResponse.ok) {
-      throw new Error(`OpenAI API error: ${openAIResponse.status}`);
-    }
-
-    const data = await openAIResponse.json();
-    const aiResponse = data.choices[0].message.content;
-
-    await supabase.from('chat_conversations').insert({
-      session_id: sessionId,
-      message: aiResponse,
-      role: 'assistant',
-    });
+    const response = generateResponse(message);
 
     return new Response(
-      JSON.stringify({ response: aiResponse }),
+      JSON.stringify({ response }),
       {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -193,29 +159,3 @@ Deno.serve(async (req: Request) => {
     );
   }
 });
-
-function generateFallbackResponse(message: string): string {
-  const lowerMessage = message.toLowerCase();
-  
-  if (lowerMessage.includes('skill') || lowerMessage.includes('technology') || lowerMessage.includes('tech stack')) {
-    return "Decent's technical skills include JavaScript, TypeScript, React, Tailwind CSS, HTML/CSS, Git, SQL, and Python. He focuses on modern web development with expertise in full-stack development, clean code practices, and creating beautiful user interfaces.";
-  }
-  
-  if (lowerMessage.includes('project')) {
-    return "Decent has worked on several impressive projects including an E-Learning Platform with payment integration, an AI Resume Parser using NLP, and a Smart Notes app. You can view all his projects in the Projects section of this portfolio. Each project demonstrates his full-stack capabilities and attention to user experience.";
-  }
-  
-  if (lowerMessage.includes('education') || lowerMessage.includes('study') || lowerMessage.includes('learn')) {
-    return "Decent is currently studying at Uncommon.Org where he's pursuing comprehensive training in software development. He's also volunteering as a Scratch Instructor, teaching coding to school children and young adults in his community.";
-  }
-  
-  if (lowerMessage.includes('contact') || lowerMessage.includes('hire') || lowerMessage.includes('email')) {
-    return "You can reach Decent at kupakwashegwavava@gmail.com or connect with him on GitHub (github.com/decentKG) and LinkedIn (linkedin.com/in/decentgwavava). He's currently open to new opportunities and collaborations!";
-  }
-  
-  if (lowerMessage.includes('experience') || lowerMessage.includes('work')) {
-    return "Decent is currently a Software Developer Student at Uncommon.Org, focusing on full-stack development and modern web technologies. He also volunteers as a Scratch Instructor, teaching coding to young people. His strengths include clean code, UI/UX focus, performance optimization, and team collaboration.";
-  }
-  
-  return "Hi! I'm here to help you learn about Decent Gwavava. He's a passionate software developer currently studying at Uncommon.Org. Feel free to ask me about his skills, projects, education, or how to contact him. You can also explore the different sections of this portfolio to learn more!";
-}

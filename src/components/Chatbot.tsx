@@ -45,6 +45,7 @@ export default function Chatbot() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const messageToSend = inputValue;
     setInputValue('');
     setIsLoading(true);
 
@@ -52,26 +53,34 @@ export default function Chatbot() {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+      if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error('Missing Supabase configuration');
+      }
+
       const conversationHistory = messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
       }));
 
-      const response = await fetch(`${supabaseUrl}/functions/v1/portfolio-chatbot`, {
+      const apiUrl = `${supabaseUrl}/functions/v1/portfolio-chatbot`;
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${supabaseAnonKey}`,
         },
         body: JSON.stringify({
-          message: inputValue,
+          message: messageToSend,
           sessionId: sessionId,
           conversationHistory: conversationHistory,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get response');
+        const errorText = await response.text();
+        console.error('API Error:', response.status, errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
       const data = await response.json();
