@@ -138,11 +138,11 @@ function App() {
 
   const projects: Project[] = [
     {
-      title: 'E-Learning Platform',
-      description: 'A full-stack e-learning platform with user authentication, course catalog, interactive lessons, quizzes, and progress tracking.',
+      title: 'Agrimo-Farm',
+      description: 'A comprehensive platform for a farming and agriculture company, showcasing services, products, and agricultural solutions.',
       tech: ['React', 'Node.js', 'MongoDB', 'Stripe'],
-      image: 'https://images.pexels.com/photos/4145190/pexels-photo-4145190.jpeg?auto=compress&cs=tinysrgb&w=800',
-      url: 'https://e-learning-psi-azure.vercel.app/'
+      image: 'https://images.pexels.com/photos/2132171/pexels-photo-2132171.jpeg?auto=compress&cs=tinysrgb&w=800',
+      url: 'https://agrimo-farms.vercel.app/'
     },
     {
       title: 'AI Resume Parser',
