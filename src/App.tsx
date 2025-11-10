@@ -106,11 +106,18 @@ function App() {
     'JavaScript',
     'TypeScript',
     'React',
+    'Node.js',
     'Tailwind CSS',
     'HTML/CSS',
     'Git',
     'SQL',
     'Python',
+    'PostgreSQL',
+    'MongoDB',
+    'RESTful APIs',
+    'Supabase',
+    'Vite',
+    'Express.js',
   ];
 
   const strengths = [
